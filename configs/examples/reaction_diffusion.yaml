@@ -1,0 +1,9 @@
+model: reaction_diffusion
+dim: 2
+steps: 500
+size: 100
+
+save_npz: out/reaction_diffusion_100.npz
+save_video: docs/assets/reaction_diffusion_100.gif
+cmap: magma
+
