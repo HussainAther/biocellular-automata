@@ -9,6 +9,18 @@ from utils.io import load_history_npz, save_history_npz
 from utils.reporting import RunReport, summarize_history, write_report
 
 from src.ca_core import CellularAutomaton
+from src.registry import get, list_models
+
+
+
+
+# Import modules so they auto-register
+import ca_rules.wolfram_rule_30  # noqa: F401
+import ca_rules.rule_90          # noqa: F401
+import ca_rules.rule_110         # noqa: F401
+import src.models.game_of_life   # noqa: F401
+import src.models.reaction_diffusion  # noqa: F401
+
 from utils.visualize import (
     animate_history,
     save_grid_as_image,
@@ -64,7 +76,8 @@ def apply_config_overrides(args, cfg: dict):
 
 def main():
     parser = argparse.ArgumentParser(description="Run cellular automata models.")
-    parser.add_argument("--model", required=True, choices=MODEL_REGISTRY.keys())
+    available = sorted(list_models().keys())
+    parser.add_argument("--model", required=False, choices=available)
     parser.add_argument("--steps", type=int, default=200)
     parser.add_argument("--size", type=int, default=101)
     parser.add_argument("--seed", type=int, default=None)
@@ -92,15 +105,32 @@ def main():
 
     rule_fn, dim = MODEL_REGISTRY[args.model]
 
+    spec = get(args.model)
+    rule_fn = spec.fn
+    dim = spec.dim
+
     # --- Initialize grid ---
     if dim == 1:
-        ca = CellularAutomaton(
-            grid_size=args.size,
-            rule_fn=rule_fn,
-            dim=1,
-            seed=args.seed,
-            init="center_dot",
+    ca = CellularAutomaton(
+        grid_size=args.size,
+        rule_fn=rule_fn,
+        dim=1,
+        seed=args.seed,
+        init=args.init,
         )
+
+    elif dim == 2:
+        ca = CellularAutomaton(
+            grid_size=(args.size, args.size),
+            rule_fn=rule_fn,
+            dim=2,
+            seed=args.seed,
+            init=args.init,
+        )
+
+    else:
+        raise ValueError(f"Unsupported dim={dim}")
+
 
     elif args.model == "reaction_diffusion":
         U = np.ones((args.size, args.size))
