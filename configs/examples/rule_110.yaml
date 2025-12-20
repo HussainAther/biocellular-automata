@@ -1,0 +1,12 @@
+model: rule_110
+dim: 1
+steps: 300
+size: 201
+seed: 42
+init: center_dot
+
+# outputs (optional)
+save_npz: out/rule_110_seed42.npz
+save_video: docs/assets/rule_110_seed42.gif
+cmap: viridis
+
