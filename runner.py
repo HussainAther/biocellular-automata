@@ -10,9 +10,11 @@ from utils.reporting import RunReport, summarize_history, write_report
 
 from src.ca_core import CellularAutomaton
 from src.registry import get, list_models
+from src.discovery import auto_import_package
 
-
-
+# Auto-import all rules/models so they register via @register(...)
+auto_import_package("ca_rules")
+auto_import_package("src.models")
 
 # Import modules so they auto-register
 import ca_rules.wolfram_rule_30  # noqa: F401
