@@ -2,6 +2,7 @@
 
 import argparse
 import numpy as np
+from utils.io import load_history_npz, save_history_npz
 
 from src.ca_core import CellularAutomaton
 from utils.visualize import (
@@ -18,6 +19,23 @@ from ca_rules.rule_110 import rule_110
 # 2D models
 from src.models.game_of_life import game_of_life_rule
 from src.models.reaction_diffusion import reaction_diffusion_rule
+
+# If loading, skip simulation
+if args.load_npz:
+    history = load_history_npz(args.load_npz)
+else:
+    # existing CA initialization + history = ca.run(...)
+    history = ca.run(args.steps)
+
+    if args.save_npz:
+        meta = {
+            "model": args.model,
+            "steps": args.steps,
+            "size": args.size,
+            "seed": args.seed,
+            "init": args.init,
+        }
+        save_history_npz(history, args.save_npz, meta=meta)
 
 MODEL_REGISTRY = {
     "rule_30": (wolfram_rule_30, 1),
@@ -36,6 +54,9 @@ def main():
     parser.add_argument("--save-image", type=str)
     parser.add_argument("--save-video", type=str)
     parser.add_argument("--cmap", type=str, default="viridis")
+    parser.add_argument("--save-npz", type=str, help="Save history to compressed NPZ (e.g., out/run.npz)")
+    parser.add_argument("--load-npz", type=str, help="Load history from NPZ and skip simulation")
+
 
     args = parser.parse_args()
 
