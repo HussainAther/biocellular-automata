@@ -1,7 +1,9 @@
 # game_of_life.py
-
 import numpy as np
 
+from src.registry import register
+
+@register("game_of_life", dim=2, description="Conway's Game of Life (outer-totalistic)")
 def game_of_life_rule(grid, neighbor_count, num_states):
     """
     Standard Conway's Game of Life rules:
