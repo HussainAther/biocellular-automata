@@ -2,6 +2,9 @@
 
 import argparse
 import numpy as np
+import os
+import yaml
+
 from utils.io import load_history_npz, save_history_npz
 
 from src.ca_core import CellularAutomaton
@@ -45,6 +48,19 @@ MODEL_REGISTRY = {
     "reaction_diffusion": (reaction_diffusion_rule, 2),
 }
 
+def apply_config_overrides(args, cfg: dict):
+    """
+    Override argparse Namespace values with keys from YAML config.
+    Only overrides keys present in cfg.
+    """
+    for k, v in cfg.items():
+        if hasattr(args, k):
+            setattr(args, k, v)
+        else:
+            # Allow config-only keys (ignore safely)
+            pass
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run cellular automata models.")
     parser.add_argument("--model", required=True, choices=MODEL_REGISTRY.keys())
@@ -56,9 +72,21 @@ def main():
     parser.add_argument("--cmap", type=str, default="viridis")
     parser.add_argument("--save-npz", type=str, help="Save history to compressed NPZ (e.g., out/run.npz)")
     parser.add_argument("--load-npz", type=str, help="Load history from NPZ and skip simulation")
+    parser.add_argument("--config", type=str, help="Path to YAML experiment config")
 
 
     args = parser.parse_args()
+
+    if args.config:
+        if not os.path.exists(args.config):
+            raise FileNotFoundError(f"Config not found: {args.config}")
+        with open(args.config, "r") as f:
+            cfg = yaml.safe_load(f) or {}
+        apply_config_overrides(args, cfg)
+
+    if not args.model and not args.load_npz:
+        raise ValueError("Must provide --model or --load-npz (or set model in --config).")
+
 
     rule_fn, dim = MODEL_REGISTRY[args.model]
 
