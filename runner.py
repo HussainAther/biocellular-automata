@@ -6,6 +6,7 @@ import os
 import yaml
 
 from utils.io import load_history_npz, save_history_npz
+from utils.reporting import RunReport, summarize_history, write_report
 
 from src.ca_core import CellularAutomaton
 from utils.visualize import (
@@ -73,6 +74,7 @@ def main():
     parser.add_argument("--save-npz", type=str, help="Save history to compressed NPZ (e.g., out/run.npz)")
     parser.add_argument("--load-npz", type=str, help="Load history from NPZ and skip simulation")
     parser.add_argument("--config", type=str, help="Path to YAML experiment config")
+    parser.add_argument("--report", type=str, help="Write a JSON run report (metrics + provenance)")
 
 
     args = parser.parse_args()
@@ -131,6 +133,34 @@ def main():
     else:
         frames = history
         final = history[-1]
+
+    if args.report:
+    # If you already created `frames` for visualization (e.g., V-channel for reaction diffusion),
+    # use that for metrics so the report matches what you plotted/exported.
+    history_for_metrics = frames
+
+    stats = summarize_history(history_for_metrics, model=args.model)
+
+    report = RunReport(
+        model=args.model,
+        steps=args.steps,
+        size=args.size,
+        dim=dim,
+        seed=getattr(args, "seed", None),
+        init=getattr(args, "init", None),
+        history_shape=stats["history_shape"],
+        dtype=stats["dtype"],
+        min_value=stats["min_value"],
+        max_value=stats["max_value"],
+        mean_value=stats["mean_value"],
+        entropy_mean=stats.get("entropy_mean"),
+        activity=stats.get("activity"),
+        symmetry=stats.get("symmetry"),
+        notes=stats.get("notes"),
+    )
+
+    write_report(args.report, report)
+    print(f"[✓] Report saved to {args.report}")
 
     # --- Output ---
     if args.save_image:
