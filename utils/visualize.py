@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import os
+import imageio
+from matplotlib import cm
 
 def plot_grid(grid, title="CA Grid", cmap="binary"):
     plt.figure(figsize=(6, 6))
@@ -50,8 +52,27 @@ def animate_history(history, interval=100, save_path=None, cmap="binary"):
 
     if save_path:
         ani.save(save_path, fps=1000 // interval)
+        print(f"[✓] Animation saved to {save_path}")
     else:
         plt.show()
 
     return ani
+
+def save_grid_as_image(grid, filename, cmap="viridis"):
+    """
+    Save a single CA grid as an image file.
+    """
+    plt.imsave(filename, grid, cmap=cmap)
+    print(f"[✓] Saved image to {filename}")
+
+def save_history_as_video(history, filename, cmap="viridis"):
+    """
+    Save CA evolution as a .mp4 or .gif animation.
+    """
+    norm = plt.Normalize(vmin=history.min(), vmax=history.max())
+    colormap = cm.get_cmap(cmap)
+
+    frames = [(colormap(norm(frame)) * 255).astype(np.uint8) for frame in history]
+    imageio.mimsave(filename, frames, fps=20)
+    print(f"[✓] Saved video to {filename}")
 
