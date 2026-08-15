@@ -1,7 +1,9 @@
 # ca_rules/wolfram_rule_30.py
 
 import numpy as np
+from src.registry import register
 
+@register("rule_30", dim=1, description="Wolfram Rule 30 (Class III chaotic)")
 def wolfram_rule_30(grid, neighbor_count=None, num_states=2):
     """
     1D Rule 30 implementation.
