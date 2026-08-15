@@ -24,6 +24,7 @@ Using CA models to simulate:
 - 💡 **Bioelectric fields and regenerative patterning**
 - 📊 **Emergent complexity and symmetry breaking**
 - 🧠 **Adaptive systems at the edge of chaos**
+- Other ideas????
 
 ---
 

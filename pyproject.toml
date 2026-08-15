@@ -1,0 +1,11 @@
+[project]
+name = "biocellular-automata"
+version = "0.1.0"
+description = "Cellular automata for biological pattern formation"
+requires-python = ">=3.9"
+dependencies = ["numpy", "matplotlib", "scipy", "scikit-learn", "umap-learn", "imageio"]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
